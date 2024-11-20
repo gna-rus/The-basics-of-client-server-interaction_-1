@@ -1,7 +1,13 @@
+# Сценарий Foursquare
+# Напишите сценарий на языке Python, который предложит пользователю ввести интересующую его категорию (например, кофейни, музеи, парки и т.д.).
+# Используйте API Foursquare для поиска заведений в указанной категории.
+# Получите название заведения, его адрес и рейтинг для каждого из них.
+# Скрипт должен вывести название и адрес и рейтинг каждого заведения в консоль.
+
 import requests
 import json
 
-# Ваши учетные данные API
+# Учетные данные API
 client_id = "KRMQNIHQJWQLROFC11JM3R1UAWU0SF2ONH1HDRXYS5AUWHQ0"
 client_secret = "OZKISUBCR3TRKIVE13C2OYSTHDZTXECRPQOYMN1PPEBPE5EY"
 
@@ -10,14 +16,20 @@ endpoint = "https://api.foursquare.com/v3/places/search"
 
 # Определение параметров для запроса API
 # city = input("Введите название города: ")
-city = 'Moscow'
+
+city = 'Moscow' # Вводится итересующий город
+category = 'Bar' # Вводится итересующее заведение
+
 params = {
     "client_id": client_id,
     "client_secret": client_secret,
     "near": city,
-    "query": "restaurant"
+    "query": category,
+    'limit': 25,
+    'sort': 'rating'
 }
 
+# Передаю хедер с индивидуальным токеном
 headers = {
     "Accept": "application/json",
     "Authorization": "fsq3b/CpmRPkY1ckNm7A5JNA6qt9f0vdZUT96I2Fma5btR0="
@@ -28,18 +40,22 @@ response = requests.get(endpoint, params=params,headers=headers)
 
 # Проверка успешности запроса API
 if response.status_code == 200:
-    print("Успешный запрос API!")
+    print("Успешный запрос API!", end='\n\n')
     data = json.loads(response.text)
     venues = data["results"]
     for venue in venues:
-      print(venue)
-      print("Название:", venue["name"])
-      try:    
-        print("Адрес:", venue["location"]["address"])
-        print("\n")
-      except:
-        print(print("Адрес:", venue["location"]['formatted_address']))
-        print("\n")
+        print(venue)
+        print("Название:", venue["name"])
+        # В ответах могут быть поля не "address" а "formatted_address" - поэтому провожу перехват ошибки
+        try:
+            print("Адрес:", venue["location"]["address"])
+            print("Категория: ", category)
+            print("\n")
+        except:
+            print("Адрес:", venue["location"]['formatted_address'])
+            print("Категория: ", category)
+            print("\n")
+
 else:
     print("Запрос API завершился неудачей с кодом состояния:", response.status_code)
     print(response.text)
