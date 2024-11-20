@@ -32,8 +32,13 @@ if response.status_code == 200:
     data = json.loads(response.text)
     venues = data["results"]
     for venue in venues:
-        print("Название:", venue["name"])
+      print(venue)
+      print("Название:", venue["name"])
+      try:    
         print("Адрес:", venue["location"]["address"])
+        print("\n")
+      except:
+        print(print("Адрес:", venue["location"]['formatted_address']))
         print("\n")
 else:
     print("Запрос API завершился неудачей с кодом состояния:", response.status_code)
